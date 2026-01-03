@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\AdminWebTasksController;
 use App\Http\Controllers\AdvisorActionsController;
 use App\Http\Controllers\AdvisorController;
@@ -37,7 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [WebPagesController::class, 'adminDashboard'])->name('dashboard');
 
 
-    
+
     Route::get('/applications', [ApplicationController::class, 'applications'])->name('applications');
     Route::get('/applications/{id}/{applicant_name}', [ApplicationController::class, 'validate_application'])->name('validate_application');
     Route::post('/application/update', [ApplicationController::class, 'updateApplication'])->name('update_application');
@@ -96,14 +97,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 
-    
-    
+
+
     Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
     Route::get('/templates/create', [TemplateController::class, 'create'])->name('templates.create');
     Route::post('/templates/store', [TemplateController::class, 'store'])->name('templates.store');
     Route::get('/templates/{id}', [TemplateController::class, 'edit'])->name('templates.edit');
     Route::post('/templates/update', [TemplateController::class, 'update'])->name('templates.update');
     Route::delete('/templates/{id}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+
+
+
+
+    Route::post('/admin/profile/update-name', [AdminProfileController::class, 'updateName'])->name('admin.profile.update-name');
+    Route::post('/admin/profile/request-email-change', [AdminProfileController::class, 'requestEmailChange'])->name('admin.profile.request-email-change');
+    Route::post('/admin/profile/verify-email-otp', [AdminProfileController::class, 'verifyEmailOtp'])->name('admin.profile.verify-email-otp');
+    Route::post('/admin/profile/request-password-change', [AdminProfileController::class, 'requestPasswordChange'])->name('admin.profile.request-password-change');
+    Route::post('/admin/profile/verify-password-otp', [AdminProfileController::class, 'verifyPasswordOtp'])->name('admin.profile.verify-password-otp');
 });
 
 
@@ -121,7 +131,7 @@ Route::middleware(['advisor_auth'])->group(function () {
 
     Route::get('/advisor/profile', [AdvisorActionsController::class, 'advisorProfile'])->name('advisor_panel.profile');
     Route::post('/advisor/update-profile', [AdvisorActionsController::class, 'updateProfile'])->name('advisor_panel.update_profile');
-    
+
     Route::post('/advisor/logout', [AdvisorActionsController::class, 'logout'])->name('advisor_panel.logout');
 });
 
