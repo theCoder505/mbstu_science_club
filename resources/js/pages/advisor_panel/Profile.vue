@@ -176,7 +176,7 @@ const submit = () => {
               <!-- Signature -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Signature
+                  Signature 
                 </label>
                 <div class="flex flex-col items-center">
                   <div
@@ -213,8 +213,13 @@ const submit = () => {
                     accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml"
                     class="hidden"
                   />
-                  <p class="mt-2 text-xs text-gray-500">JPG, PNG, GIF, SVG up to 20MB</p>
+                  <p class="mt-2 text-xs text-gray-500 text-center">
+                  JPG, PNG, GIF, SVG up to 20MB
+                  <br>
+                  <small class="text-green-500 text-sm">(* Please use a background less image thus over certificate it fits perfectly *)</small>
+                  </p>
                 </div>
+                
               </div>
             </div>
 
