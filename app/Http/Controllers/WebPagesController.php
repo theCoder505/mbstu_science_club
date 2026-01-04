@@ -34,6 +34,7 @@ class WebPagesController extends Controller
 
         $join_club_form = WebSettings::find(1)->join_form;
         $facebookPageUrl = WebSettings::find(1)->facebook_link;
+        $facebook_page_iframe = WebSettings::find(1)->facebook_page_iframe;
 
         return Inertia::render('Home', [
             'advisors' => $advisors,
@@ -49,6 +50,7 @@ class WebPagesController extends Controller
 
             'join_club_form' => $join_club_form,
             'facebookPageUrl' => $facebookPageUrl,
+            'facebook_page_iframe' => $facebook_page_iframe,
         ]);
     }
 

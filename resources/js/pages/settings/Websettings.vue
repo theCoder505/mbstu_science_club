@@ -24,6 +24,7 @@ const props = defineProps<{
     contact_email: string;
     phone_number: string;
     join_form: string;
+    facebook_page_iframe: string;
     about_us: string;
     privacy_policy: string;
     terms_conditions: string;
@@ -41,6 +42,7 @@ interface FormData {
   contact_email: string;
   phone_number: string;
   join_form: string;
+  facebook_page_iframe: string;
   about_us: string;
   privacy_policy: string;
   terms_conditions: string;
@@ -58,6 +60,7 @@ const form = useForm<FormData>({
   contact_email: props.settings.contact_email,
   phone_number: props.settings.phone_number,
   join_form: props.settings.join_form,
+  facebook_page_iframe: props.settings.facebook_page_iframe,
   about_us: props.settings.about_us,
   privacy_policy: props.settings.privacy_policy,
   terms_conditions: props.settings.terms_conditions,
@@ -109,7 +112,10 @@ const saveUpdate = () => {
 
           <div class="relative">
             <div class="mb-4">
-              <label class="block text-sm font-medium text-teal-700 mb-2 cursor-pointer" for="signature">
+              <label
+                class="block text-sm font-medium text-teal-700 mb-2 cursor-pointer"
+                for="signature"
+              >
                 Current Signature:
 
                 <div v-if="form.sign_preview" class="mt-2">
@@ -185,12 +191,42 @@ const saveUpdate = () => {
             :message="form.errors.phone_number"
             type="text"
           />
-          <Input
-            placeholder="Club Membership Form"
-            v-model="form.join_form"
-            :message="form.errors.join_form"
-            type="text"
-          />
+
+          <div class="w-full relative">
+            <textarea
+              v-model="form.join_form"
+              class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-teal-600 placeholder-teal-400 bg-teal-50"
+              :class="
+                form.errors.join_form
+                  ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                  : 'border-teal-300 focus:ring-teal-500 focus:border-teal-400'
+              "
+              placeholder="Club Facebook Page Iframe"
+            ></textarea>
+            <small
+              v-if="form.errors.join_form"
+              class="text-red-500 font-medium text-sm mt-2 block"
+              >{{ form.errors.join_form }}</small
+            >
+          </div>
+          
+          <div class="w-full relative">
+            <textarea
+              v-model="form.facebook_page_iframe"
+              class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-teal-600 placeholder-teal-400 bg-teal-50"
+              :class="
+                form.errors.facebook_page_iframe
+                  ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                  : 'border-teal-300 focus:ring-teal-500 focus:border-teal-400'
+              "
+              placeholder="Club Facebook Page Iframe"
+            ></textarea>
+            <small
+              v-if="form.errors.facebook_page_iframe"
+              class="text-red-500 font-medium text-sm mt-2 block"
+              >{{ form.errors.facebook_page_iframe }}</small
+            >
+          </div>
 
           <div class="col-span-2">
             <RichTextEditor

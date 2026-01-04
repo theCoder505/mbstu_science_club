@@ -87,6 +87,7 @@ const props = withDefaults(
     awards_won: string;
     join_club_form: string;
     facebookPageUrl: string;
+    facebook_page_iframe: string;
   }>(),
   {
     canRegister: true,
@@ -1405,23 +1406,16 @@ onUnmounted(() => {
           <div class="">
             <div class="sticky top-8">
               <div class="relative w-full">
-                <iframe
-                  src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMBSTUScienceClub&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=4539215806304869"
-                  width="100%"
-                  height="600"
-                  style="border: none; overflow: hidden; border-radius: 12px"
-                  scrolling="no"
-                  frameborder="0"
-                  allowfullscreen="true"
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  loading="lazy"
-                  class="w-full"
-                ></iframe>
+                <div
+                  v-if="facebook_page_iframe"
+                  class="bg-gray-50 rounded-xl p-6 border border-gray-200"
+                  v-html="facebook_page_iframe"
+                ></div>
               </div>
 
               <div class="text-center lg:text-left mt-6">
                 <a
-                  href="https://www.facebook.com/MBSTUScienceClub"
+                  :href="facebookPageUrl"
                   target="_blank"
                   class="inline-flex items-center gap-3 px-6 py-3 bg-[#1877f2] text-white font-bold text-lg rounded-full hover:bg-[#0c63d4] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 transform hover:scale-105"
                 >
@@ -1444,7 +1438,7 @@ onUnmounted(() => {
             community interactions
           </p>
           <a
-            href="https://www.facebook.com/MBSTUScienceClub"
+            :href="facebookPageUrl"
             target="_blank"
             class="inline-flex items-center gap-3 px-8 py-4 bg-[#1877f2] text-white font-bold text-lg rounded-full hover:bg-[#0c63d4] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 transform hover:scale-105"
           >

@@ -16,6 +16,7 @@ class WebSettings extends Model
         'contact_email',
         'phone_number',
         'join_form',
+        'facebook_page_iframe',
         'about_us',
         'privacy_policy',
         'terms_conditions',
