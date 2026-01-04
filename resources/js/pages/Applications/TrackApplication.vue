@@ -14,6 +14,15 @@ interface PageProps {
   };
 }
 
+interface DownloadResponse {
+  application?: {
+    id: number;
+    certificate_file?: string;
+    applicant_name: string;
+    [key: string]: any;
+  };
+}
+
 const page = usePage<PageProps>();
 
 // Access props properly with type safety
@@ -116,22 +125,52 @@ const downloadCertificate = () => {
     return;
   }
   
+  // Create a form for downloading
   const downloadForm = useForm({
     email: trackedEmail.value,
   });
   
-  downloadForm.post("/download-certificate", {
-    preserveScroll: true,
-    onSuccess: (response) => {
-      // if (response.props.download_url) {
-      //   window.open(response.props.download_url, '_blank');
-      // }
-      console.log(response);
-    },
-    onError: () => {
-      alert('Failed to download certificate. Please try again.');
-    },
-  });
+  // Use get method instead of post to download file
+  window.location.href = `/download-certificate?email=${encodeURIComponent(trackedEmail.value)}`;
+};
+
+// Alternative approach using fetch if you want to handle errors better
+const downloadCertificateWithFetch = async () => {
+  if (!canDownloadCertificate.value || !trackedEmail.value) {
+    alert('Please track your application first to get the email.');
+    return;
+  }
+  
+  try {
+    // First, get the application data to check if certificate file exists
+    const response = await fetch(`/download-certificate?email=${encodeURIComponent(trackedEmail.value)}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    });
+    
+    const data: DownloadResponse = await response.json();
+    
+    if (data.application?.certificate_file) {
+      // Create a download link for the certificate
+      const certificateUrl = `/storage/${data.application.certificate_file}`;
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = certificateUrl;
+      link.download = `${data.application.applicant_name}_certificate.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert('Certificate file not found. Please contact support.');
+    }
+  } catch (error) {
+    console.error('Download failed:', error);
+    alert('Failed to download certificate. Please try again.');
+  }
 };
 
 // Check if form was just submitted

@@ -22,12 +22,11 @@ Route::get('/terms-and-conditions', [WebPagesController::class, 'terms_condition
 Route::get('/code-of-conduct', [WebPagesController::class, 'code_of_conduct'])->name('code_of_conduct')->middleware('statistics');
 Route::get('/application', [ApplicationController::class, 'application'])->name('application')->middleware('statistics');
 Route::get('/track-certificate', [ApplicationController::class, 'track_application'])->name('track_page')->middleware('statistics');
-
+Route::get('/download-certificate', [ApplicationController::class, 'download_certificate'])->name('download_certificate');
 
 
 Route::post('/apply-certificate', [ApplicationController::class, 'apply_certificate'])->name('apply_certificate');
 Route::post('/track-certificate', [ApplicationController::class, 'track_result'])->name('track_result');
-Route::post('/download-certificate', [ApplicationController::class, 'download_certificate'])->name('download_certificate');
 
 Route::post('/email-otp', [WebPagesController::class, 'contactOTP'])->name('contactOTP');
 Route::post('/verify-and-send-email', [WebPagesController::class, 'verifyAndSendEmail'])->name('verifyAndSendEmail');

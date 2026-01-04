@@ -215,7 +215,7 @@ Clicking to a team mate visiot can see the epcifci profile of a temmate and gain
 Technology: 
 the website is built with Laravel as Backend. Laravel 12 (latesst laravel version), Eloquennnt ORM, MVC pattern
 Inertia is used to make connections with frontend and backend.
-Frontend: Vue.JS (vue 3 latest vue versionn), TypeScript (latest), Tailwind (Tailwind 4 latest tailwind version) & Custom Media CSS, HTML
+Frontend: Vue.JS (vue 3 latest vue versionn), TypeScript (latest), Tailwind (Tailwind 4 latest tailwind version) & Custom Media CSS, HTML, shadcn/ui is used as well.
 Database: sqlite
 
 
@@ -729,4 +729,10 @@ The database are created using migrations according to the model names.
 
 the codebase github repository link:
 https://github.com/theCoder505/mbstu_science_club
+
+
+
+website test url is: https://mbstusc.eksofts.xyz
+
+
 

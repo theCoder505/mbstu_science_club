@@ -88,10 +88,45 @@ class ApplicationController extends Controller
         $validated = $request->validate([
             'email' => ['required', 'email', 'max:255'],
         ]);
-        $track_record = Apply::where('email', $validated['email'])->first();
-        return response()->json(['application' => $track_record]);
-    }
 
+        $track_record = Apply::where('email', $validated['email'])
+            ->where('certificate_status', 'approved')
+            ->first();
+
+        if (!$track_record) {
+            return response()->json(['error' => 'Application not found or not approved'], 404);
+        }
+
+        if (!$track_record->certificate_file) {
+            return response()->json(['error' => 'Certificate file not available'], 404);
+        }
+
+        // Return JSON data for frontend download or direct file download
+        if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'application' => [
+                    'id' => $track_record->id,
+                    'applicant_name' => $track_record->applicant_name,
+                    'certificate_file' => $track_record->certificate_file,
+                    'email' => $track_record->email,
+                ]
+            ]);
+        }
+
+        // Direct file download
+        $filePath = storage_path('app/public/' . $track_record->certificate_file);
+
+        if (!file_exists($filePath)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+
+        $fileName = Str::slug($track_record->applicant_name) . '_certificate.png';
+
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
+    }
 
 
 
