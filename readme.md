@@ -727,3 +727,6 @@ these details ensures a good communication for email.
 
 The database are created using migrations according to the model names.
 
+the codebase github repository link:
+https://github.com/theCoder505/mbstu_science_club
+
