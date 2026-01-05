@@ -1,0 +1,81 @@
+\chapter{System Design}
+\label{chap:system_design}
+
+\section{System Architecture}
+The system follows the Model-View-Controller (MVC) architectural pattern provided by Laravel, integrated with a Client-Side Rendering (CSR) feel via Inertia.js.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{controller.png}
+    \caption{MVC Architecture Overview}
+    \label{fig:mvc}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Model:} Represents the data (Applicants, Teams, Settings).
+    \item \textbf{View:} The User Interface built with Vue.js and Tailwind CSS.
+    \item \textbf{Controller:} Handles the logic, processing user requests and interacting with the Model.
+\end{itemize}
+
+\section{Database Design}
+The database schema is designed to support the relationships between members, certificates, and system settings. Below are the key models.
+
+\subsection{Apply (Application Model)}
+Stores the data for certificate applicants.
+\begin{verbatim}
+Schema::create('applies', function (Blueprint $table) {
+    $table->id();
+    $table->string('applicant_name');
+    $table->string('email');
+    $table->string('designation');
+    $table->date('member_since');
+    $table->date('member_till');
+    $table->text('impact');
+    // Certificate Details
+    $table->text('certificate_text')->nullable();
+    $table->string('certificate_status')->default('pending');
+    $table->foreignId('template_id')->nullable();
+    $table->string('issued_by')->nullable(); // Advisor Name
+    $table->text('note')->nullable(); // Rejection note
+    $table->date('issue_date')->nullable();
+    $table->json('certificate_positions')->nullable();
+    $table->string('certificate_file')->nullable();
+    $table->timestamps();
+});
+\end{verbatim}
+
+\subsection{Team Model}
+Stores the profiles of the executive committee and members.
+\begin{verbatim}
+Schema::create('teams', function (Blueprint $table) {
+    $table->id();
+    $table->string('teammate_image');
+    $table->string('teammate_name');
+    $table->string('department');
+    $table->string('designation');
+    $table->string('membership_period');
+    $table->text('small_desc');
+    $table->longText('details');
+    $table->string('facebook_link')->nullable();
+    $table->string('linkedin_link')->nullable();
+    $table->timestamps();
+});
+\end{verbatim}
+
+\subsection{Template Model}
+Stores the design templates for certificates.
+\begin{verbatim}
+Schema::create('templates', function (Blueprint $table) {
+    $table->id();
+    $table->string('template_name');
+    $table->string('template_image');
+    $table->timestamps();
+});
+\end{verbatim}
+
+\section{User Interface Design}
+The design philosophy emphasizes a "dark mode" premium aesthetic using modern Tailwind CSS utilities. 
+\begin{itemize}
+    \item \textbf{Dashboard:} A sidebar layout with statistical widgets (Pie charts, Bar charts) for data visualization.
+    \item \textbf{Deep Web Panel:} A specialized login route (`/advisor/login`) distinct from the main admin login.
+\end{itemize}

@@ -1255,39 +1255,27 @@ onUnmounted(() => {
           </p>
         </div>
 
-        <div class="space-y-12">
+        <!-- Grid layout for committees -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div
             v-for="committee in committees"
             :key="committee.id"
-            class="bg-white rounded-2xl shadow-lg p-8"
+            @click="openCommitteeImageModal(committee.committee_images, 0)"
+            class="group bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300"
           >
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-3xl font-bold text-gray-900">
-                {{ committee.committee_name }}
-              </h3>
-              <span
-                class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-teal-400 text-gray-900 font-bold rounded-full"
-                >{{ committee.committee_period }}</span
-              >
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-4">
+            <!-- Single image display -->
+            <div class="relative h-64 overflow-hidden">
+              <img
+                :src="`/storage/${committee.committee_images[0]}`"
+                :alt="committee.committee_name"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
               <div
-                v-for="(image, index) in committee.committee_images"
-                :key="index"
-                @click="openCommitteeImageModal(committee.committee_images, index)"
-                class="relative group overflow-hidden rounded-xl cursor-pointer"
+                class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
               >
-                <img
-                  :src="`/storage/${image}`"
-                  :alt="`${committee.committee_name} - ${index + 1}`"
-                  class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-                >
+                <div class="text-center">
                   <svg
-                    class="w-12 h-12 text-white"
+                    class="w-12 h-12 text-white mx-auto mb-2"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1299,8 +1287,23 @@ onUnmounted(() => {
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
                     />
                   </svg>
+                  <p class="text-white text-sm font-semibold">
+                    +{{ committee.committee_images.length - 1 }} more
+                  </p>
                 </div>
               </div>
+            </div>
+
+            <!-- Committee info -->
+            <div class="p-6">
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                {{ committee.committee_name }}
+              </h3>
+              <span
+                class="inline-block px-4 py-2 bg-gradient-to-r from-yellow-400 to-teal-400 text-gray-900 font-bold rounded-full text-sm"
+              >
+                {{ committee.committee_period }}
+              </span>
             </div>
           </div>
         </div>
@@ -1429,26 +1432,6 @@ onUnmounted(() => {
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Bottom CTA for Mobile -->
-        <div class="mt-12 text-center lg:hidden">
-          <p class="text-gray-600 mb-6">
-            Visit our Facebook page for real-time updates, event announcements, and
-            community interactions
-          </p>
-          <a
-            :href="facebookPageUrl"
-            target="_blank"
-            class="inline-flex items-center gap-3 px-8 py-4 bg-[#1877f2] text-white font-bold text-lg rounded-full hover:bg-[#0c63d4] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/50 transform hover:scale-105"
-          >
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-              />
-            </svg>
-            Follow Us on Facebook
-          </a>
         </div>
       </div>
     </section>

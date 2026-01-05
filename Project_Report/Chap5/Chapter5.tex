@@ -1,0 +1,87 @@
+\chapter{Implementation and Results}
+\label{chap:implementation}
+
+\section{Implementation Details}
+The application is deployed on a standard LAMP/LEMP stack or locally via XAMPP. The build process uses Vite for compiling the Vue.js frontend assets.
+
+\subsection{Middleware Configuration}
+Custom middlewares calculate statistics and manage authentication barriers.
+
+\textbf{Statistics Middleware:} Tracks page views for analytical graphs.
+\begin{verbatim}
+public function handle(Request $request, Closure $next): Response
+{
+    $response = $next($request);
+    
+    if ($request->isMethod('GET') && $response->getStatusCode() === 200) {
+        $this->recordStatistics($request);
+    }
+    
+    return $response;
+}
+\end{verbatim}
+
+\textbf{Advisor Middleware:} Ensures only authenticated advisors can access approval routes.
+\begin{verbatim}
+public function handle(Request $request, Closure $next): Response
+{
+    if (!Auth::guard('advisor')->check()) {
+        return redirect()->route('advisor_panel.login_page')
+            ->with('error', 'Please login to continue');
+    }
+    return $next($request);
+}
+\end{verbatim}
+
+\subsection{Frontend Interactions (Inertia.js)}
+The frontend handles data sharing via Inertia's `HandleInertiaRequests` middleware, which passes authenticated user data and global settings (like contact info) to every Vue component automatically.
+
+\begin{verbatim}
+public function share(Request $request): array
+{
+    return [
+        ...parent::share($request),
+        'auth' => [
+            'user' => $request->user(),
+            'advisor' => Auth::guard('advisor')->user(),
+        ],
+        'webSettings' => [
+            'contact_email' => $contact_email,
+            // ...
+        ]
+    ];
+}
+\end{verbatim}
+
+\section{Results}
+The implementation resulted in a fully functional web application.
+
+\subsection{Homepage}
+The landing page greets visitors with the club's hero section, followed by dynamic sections for events and research projects.
+
+\subsection{Admin Dashboard}
+The dashboard provides a statistical overview.
+\begin{figure}[h]
+    \centering
+    \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+    \caption{Admin Dashboard showing Statistics}
+    \label{fig:admin_dashboard}
+\end{figure}
+
+\subsection{Certificate Generation}
+The "Design A Template" page allows admins to drag-and-drop elements. Once verified, the system generates the certificate as shown below.
+\begin{figure}[h]
+    \centering
+    \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+    \caption{Certificate Template Designer}
+    \label{fig:cert_design}
+\end{figure}
+
+\subsection{Advisor Panel}
+The simplified interface for advisors ensures quick action.
+\begin{figure}[h]
+    \centering
+    \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+    \caption{Advisor Approval Panel}
+    \label{fig:advisor_panel}
+\end{figure}

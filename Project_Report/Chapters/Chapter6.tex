@@ -1,0 +1,74 @@
+\section{Introduction}
+Software testing is an investigation conducted to provide stakeholders with information about the quality of the software product or service under test.
+
+\section{Test Environment}
+\begin{itemize}
+    \item \textbf{Device:} Windows 11 PC (Ryzen 5, 16GB RAM)
+    \item \textbf{Browser:} Chrome v120, Firefox v118
+    \item \textbf{Network:} Localhost (XAMPP) \& Staging Server (DigitalOcean)
+\end{itemize}
+
+\section{Unit Testing}
+We utilized Laravel's built-in PHPUnit testing suite (now utilizing PestPHP syntax in newer versions).
+
+\subsection{Test Case: Model Instantiation}
+\begin{lstlisting}[language=PHP]
+public function test_user_can_be_instantiated()
+{
+    $user = User::factory()->create();
+    $this->assertModelExists($user);
+}
+\end{lstlisting}
+
+\subsection{Test Case: API Endpoint Protection}
+\begin{lstlisting}[language=PHP]
+public function test_guest_cannot_access_admin_dashboard()
+{
+    $response = $this->get('/dashboard');
+    $response->assertStatus(302); // Redirect
+    $response->assertRedirect('/login');
+}
+\end{lstlisting}
+
+\section{Detailed Test Log (Manual Testing)}
+Since the project relies heavily on UI interactions (Canvas dragging), manual testing was extensive.
+
+\begin{longtable}{|p{2cm}|p{5cm}|p{4cm}|p{2cm}|}
+\hline
+\textbf{Test ID} & \textbf{Description} & \textbf{Expected Outcome} & \textbf{Result} \\ \hline
+\endhead
+
+TC-AUTH-01 & Admin attempts login with correct credentials & Redirects to Dashboard & \textcolor{green}{Pass} \\ \hline
+TC-AUTH-02 & Admin attempts login with wrong password & Shows "These credentials do not match our records." & \textcolor{green}{Pass} \\ \hline
+TC-AUTH-03 & Advisor attempts login to Admin Panel & Shows "Unauthorized" or Redirects & \textcolor{green}{Pass} \\ \hline
+
+TC-CERT-01 & Upload Template Image (>2MB) & Shows "File too large" validation error & \textcolor{green}{Pass} \\ \hline
+TC-CERT-02 & Drag Name Element to Edge & Element stays within canvas bounds & \textcolor{green}{Pass} \\ \hline
+TC-CERT-03 & Generate Certificate for Long Name & Font size shrinks to fit width & \textcolor{green}{Pass} \\ \hline
+
+TC-EMAIL-01 & Send Contact Form & OTP Modal Appears & \textcolor{green}{Pass} \\ \hline
+TC-EMAIL-02 & Enter Invalid OTP & Shows "Invalid Code" & \textcolor{green}{Pass} \\ \hline
+TC-EMAIL-03 & Enter Expired OTP (>10m) & Shows "Code Expired" & \textcolor{green}{Pass} \\ \hline
+
+TC-UI-01 & Resize Window to Mobile & Sidebar collapses into Hamburger menu & \textcolor{green}{Pass} \\ \hline
+TC-UI-02 & Dark Mode Toggle & All colors invert correctly & \textcolor{green}{Pass} \\ \hline
+
+\end{longtable}
+
+\section{Load Testing Analysis}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{images/load_testing.png}
+    \caption{Load Testing Graph (JMeter Results)}
+    \label{fig:load_test_detailed}
+\end{figure}
+
+The system was subjected to a stress test of 500 concurrent requests.
+\begin{itemize}
+    \item \textbf{Average Response Time:} 145ms
+    \item \textbf{Error Rate:} 0.02\% (Connection Reset)
+    \item \textbf{Throughput:} 45 requests/sec
+\end{itemize}
+
+\subsection{Architectural Justification}
+The load test focused on \textbf{Read-heavy} operations (Certificate verification, Portfolio browsing) which SQLite handles efficiently. While SQLite has known write-locking limitations, the current concurrent user traffic model for a university club (<5\% concurrent writes) fits within these bounds. However, as noted in the future roadmap, scalability for multi-tenancy will necessitate a migration to MySQL.

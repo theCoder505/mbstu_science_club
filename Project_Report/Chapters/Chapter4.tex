@@ -1,0 +1,160 @@
+\section{Introduction}
+System design defines the architecture, components, modules, interfaces, and data for a system to satisfy specified requirements.
+
+\section{System Architecture}
+We utilize a \textbf{Modular MVC} architecture customized for inertia.js \cite{mvc_pattern}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{images/architecture.png}
+    \caption{Detailed System Architecture}
+    \label{fig:architecture_detailed}
+\end{figure}
+
+\subsection{Client-Side (Vue.js)}
+The view layer is a Single Page Application (SPA). It handles:
+\begin{itemize}
+    \item \textbf{Routing:} `vue-router` is NOT used; instead, Inertia handles routing via JSON payloads.
+    \item \textbf{State Management:} Component-level state is managed via Vue's Reactivity system (Refs/Reactive).
+\end{itemize}
+
+\subsection{Server-Side (Laravel)}
+\begin{itemize}
+    \item \textbf{Controllers:} Return `Inertia::render('PageName', [data])` responses.
+    \item \textbf{Middleware:} Handles request filtering (e.g., `HandleInertiaRequests` injects user data).
+\end{itemize}
+
+\section{Database Design}
+The database schema utilizes standard 3rd Normal Form \cite{db_normalization}.
+
+    \caption{Entity Relationship Diagram (ERD)}
+    \label{fig:erd_detailed}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Table Name} & \textbf{Primary Key} & \textbf{Description} \\ \hline
+users & id & Admin/Executive committee login credentials \\ \hline
+advisors & id & Faculty member accounts with department mapping \\ \hline
+teams & id & Public profiles for the "Executive Committee" page \\ \hline
+applies & id & Certificate applications (The core transactional table) \\ \hline
+templates & id & Base designs uploaded by admins \\ \hline
+web\_settings & id & Singleton row for dynamic site configuration \\ \hline
+\end{tabular}
+\caption{Database Schema Summary}
+\label{tab:db_schema}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{images/class_diagram.png}
+    \caption{UML Class Diagram}
+    \label{fig:class_diagram}
+\end{figure}
+
+\section{Data Models (Schema Definitions)}
+This section details the Eloquent models used in the system.
+
+\subsection{Team Model}
+Manages the executive committee profiles.
+
+\begin{lstlisting}[language=PHP, caption=Team Model Migration]
+Schema::create('teams', function (Blueprint $table) {
+    $table->id();
+    $table->string('teammate_image'); // Path to stored image
+    $table->string('teammate_name');
+    $table->string('department');
+    $table->string('designation'); // e.g. "President"
+    $table->string('membership_period'); // e.g. "2024-25"
+    $table->text('small_desc');
+    $table->longText('details'); // HTML content from Quill Editor
+    $table->string('facebook_link')->nullable();
+    $table->string('linkedin_link')->nullable();
+    $table->timestamps();
+});
+\end{lstlisting}
+
+\subsection{Apply Model (Certificates)}
+This table stores the entire lifecycle of a certificate request.
+
+\begin{lstlisting}[language=PHP, caption=Apply/Certificate Model]
+Schema::create('applies', function (Blueprint $table) {
+    $table->id();
+    // Applicant Info
+    $table->string('applicant_name');
+    $table->string('email')->index(); // Indexed for fast searching
+    $table->string('designation');
+    $table->date('member_since');
+    $table->date('member_till');
+    $table->text('impact');
+    
+    // Process Status
+    $table->string('certificate_status')->default('pending'); 
+    // Enum: pending, verified, approved, declined
+    
+    // Certificate Configuration
+    $table->string('department'); // e.g. "CSE", "ICT" - Used for Advisor routing
+    $table->foreignId('template_id')->nullable()->constrained();
+    $table->text('certificate_text')->nullable();
+    $table->json('certificate_positions')->nullable(); // Stores {x,y} coords
+    
+    // Issuance Info
+    $table->string('issued_by')->nullable(); // Advisor Name
+    $table->string('certificate_file')->nullable(); // Path to generated PDF
+    $table->date('issue_date')->nullable();
+    
+    $table->timestamps();
+});
+\end{lstlisting}
+
+\subsection{Template Model}
+Stores the blank certificate designs uploaded by admin.
+
+\begin{lstlisting}[language=PHP, caption=Template Model]
+class Template extends Model
+{
+    protected $fillable = [
+        'template_name',
+        'template_image', // Storage path
+    ];
+    
+    // Relationship: One template has many applications
+    public function applications() {
+        return $this->hasMany(Apply::class);
+    }
+}
+\end{lstlisting}
+
+\subsection{WebSettings Model}
+Manages dynamic site content to avoid hardcoding.
+
+\begin{lstlisting}[language=PHP, caption=WebSettings Model]
+Schema::create('web_settings', function (Blueprint $table) {
+    $table->id();
+    $table->string('contact_email');
+    $table->string('phone_number');
+    $table->string('address');
+    $table->string('facebook_link')->nullable();
+    $table->timestamps();
+});
+\end{lstlisting}
+
+\section{Interface Design}
+The UI follows a strict component-based system using Tailwind CSS.
+
+\subsection{Layout Components}
+\begin{enumerate}
+    \item \textbf{AuthenticatedLayout:} Used for Admin/Advisor panels. Includes Sidebar, Topbar, and Flash Message container.
+    \item \textbf{GuestLayout:} Used for Login/Register pages. Centered card design.
+    \item \textbf{AppLayout:} The public facing layout with Navbar (Home, Team, Gallery) and Footer.
+\end{enumerate}
+
+\subsection{Feedback Design}
+We utilize `SweetAlert2` for user feedback.
+\begin{itemize}
+    \item \textbf{Success:} Green checkmark popup on successful form submission.
+    \item \textbf{Error:} Red cross popup for Validation errors.
+    \item \textbf{Confirm:} "Are you sure?" modal before deleting any member/image.
+\end{itemize}

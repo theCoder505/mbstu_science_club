@@ -3,6 +3,7 @@ import Input from "@/components/Input.vue";
 import AppLayout from "@/layouts/AppLayout.vue";
 import { BreadcrumbItem } from "@/types";
 import { useForm } from "@inertiajs/vue3";
+import RichTextEditor from "@/components/RichTextEditor.vue";
 import Swal from "sweetalert2";
 
 const props = defineProps<{
@@ -57,8 +58,8 @@ const form = useForm<FormData>({
   facebook_link: props.teammate.facebook_link,
   linkedin_link: props.teammate.linkedin_link,
   teammate_image: null,
-  teammate_image_preview: props.teammate.teammate_image 
-    ? `/storage/${props.teammate.teammate_image}` 
+  teammate_image_preview: props.teammate.teammate_image
+    ? `/storage/${props.teammate.teammate_image}`
     : null,
   current_image: props.teammate.teammate_image,
 });
@@ -73,49 +74,53 @@ const showProfile = (event: Event) => {
 };
 
 const handleSubmit = () => {
-  form.transform((data) => ({
-    ...data,
-    id: form.id,
-    teammate_image: form.teammate_image,
-  })).post('/manage-team/update', {
-    preserveScroll: true,
-    forceFormData: true,
-    onSuccess: () => {
-      Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: String("Teammate updated successfully!"),
-      });
-    },
-    onError: (errors) => {
-      console.error('Form errors:', errors);
-    },
-  });
+  form
+    .transform((data) => ({
+      ...data,
+      id: form.id,
+      teammate_image: form.teammate_image,
+    }))
+    .post("/manage-team/update", {
+      preserveScroll: true,
+      forceFormData: true,
+      onSuccess: () => {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: String("Teammate updated successfully!"),
+        });
+      },
+      onError: (errors) => {
+        console.error("Form errors:", errors);
+      },
+    });
 };
 
 const handleDelete = () => {
   Swal.fire({
-    title: 'Are you sure?',
+    title: "Are you sure?",
     text: "You won't be able to revert this!",
-    icon: 'warning',
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#0d9488',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
+    confirmButtonColor: "#0d9488",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
   }).then((result) => {
     if (result.isConfirmed) {
-      form.transform(() => ({
-        id: form.id,
-      })).post('/manage-team/destroy', {
-        preserveScroll: true,
-        onSuccess: () => {
-          Swal.fire({
-            icon: "success",
-            title: "Deleted!",
-            text: String("Teammate deleted successfully!"),
-          });
-        },
-      });
+      form
+        .transform(() => ({
+          id: form.id,
+        }))
+        .post("/manage-team/destroy", {
+          preserveScroll: true,
+          onSuccess: () => {
+            Swal.fire({
+              icon: "success",
+              title: "Deleted!",
+              text: String("Teammate deleted successfully!"),
+            });
+          },
+        });
     }
   });
 };
@@ -126,7 +131,10 @@ const handleDelete = () => {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="px-4 lg:px-8 my-12">
-      <form @submit.prevent="handleSubmit" class="bg-teal-50 p-4 lg:p-6 rounded-lg shadow grid lg:grid-cols-2 gap-3">
+      <form
+        @submit.prevent="handleSubmit"
+        class="bg-teal-50 p-4 lg:p-6 rounded-lg shadow grid lg:grid-cols-2 gap-3"
+      >
         <h1
           class="text-center text-2xl capitalize col-span-2 mb-2 font-bold text-teal-700"
         >
@@ -230,16 +238,13 @@ const handleDelete = () => {
         </div>
 
         <div class="relative col-span-2">
-          <textarea
+          <RichTextEditor
             v-model="form.details"
-            placeholder="Teammate Career Details..."
-            class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-teal-600 placeholder-teal-400 bg-teal-50 min-h-[150px]"
-            :class="
-              form.errors.details
-                ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                : 'border-teal-300 focus:ring-teal-500 focus:border-teal-400'
-            "
-          ></textarea>
+            :error="form.errors.details"
+            label="Member Details"
+            placeholder="Write Member Details here..."
+          />
+
           <small
             v-if="form.errors.details"
             class="text-red-500 font-medium text-sm mt-2 block"

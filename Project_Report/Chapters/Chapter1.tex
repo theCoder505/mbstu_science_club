@@ -1,0 +1,55 @@
+\section{Background of the Study}
+In the modern educational landscape, co-curricular activities are recognized as essential components of higher education. They foster soft skills, leadership, teamwork, and networking opportunities that are not typically covered in the classroom environment. Universities in Bangladesh, both public and private, host a plethora of clubs and organizations ranging from Science Clubs, Debating Societies, Photography Clubs, to Cultural Forums. 
+
+The Mawlana Bhashani Science \& Technology University (MBSTU) Science Club is one such premier organization dedicated to promoting scientific temperament and innovation among students. However, despite its vibrant activities, the club manages its operations through manual processes or fragmented digital tools (e.g., Google Forms, Excel sheets). This disjointed approach limits the club's ability to maintain a comprehensive portfolio, track member growth, and issue authentic, verifiable credentials for participation.
+
+As the world moves towards a "Digital Bangladesh" \cite{digital_bangladesh}, it is imperative that student organizations also modernize their infrastructure. A web-based Management System tailored for such clubs can bridge the gap between ad-hoc operations and professional management, ensuring that every event, achievement, and member is duly recorded and celebrated.
+
+\section{Problem Statement}
+The current operational workflow of the MBSTU Science Club, and indeed most university clubs in Bangladesh, faces several critical challenges:
+\begin{enumerate}
+    \item \textbf{Invisibility of Achievements:} Without a centralized website, the club's activities/achievements are lost in the social media feed algorithms \cite{social_media_impact}. There is no permanent digital archive.
+    \item \textbf{Manual Certificate Issuance:} The process of designing, printing, signing, and distributing certificates for events is labor-intensive and expensive. Furthermore, physical certificates are easily forged and difficult to verify by employers or international universities.
+    \item \textbf{Member Management Chaos:} tracking membership periods, dues, and roles is done via spreadsheets, which prone to errors and version conflicts.
+    \item \textbf{Lack of Institutional Memory:} When a committee steps down, the operational knowledge and data often leave with them. A centralized database is needed to preserve "institutional memory."
+    \item \textbf{Advisor Engagement:} Faculty advisors are busy academics. The current requirement for them to physically sign hundreds of certificates is a major bottleneck.
+\end{enumerate}
+
+\section{Objectives of the Project}
+The primary goal is to develop a "Club Portfolio Management System" (CPMS) as a SaaS-ready platform \cite{saas_growth}. Specific objectives include:
+\begin{itemize}
+    \item \textbf{Portfolio Management:} To create a dynamic public-facing website that showcases the club's history, executive committees, gallery, and FAQs.
+    \item \textbf{Automated Credentialing:} To implement a certificate engine that allows custom template design and automated generation of PDF/Image certificates with digital signatures.
+    \item \textbf{Verification System:} To establish a public verification portal where any third party can validate a certificate using its unique ID.
+    \item \textbf{Role-Based Access Control (RBAC):} To secure the platform with varying permission levels for Admins, Advisors, and Members.
+    \item \textbf{Analytics:} To provide the Executive Committee with real-time stats on page views, potential members, and event reach.
+\end{itemize}
+
+\section{Scope and Limitations}
+\subsection{Scope}
+The system covers the entire lifecycle of club management:
+\begin{itemize}
+    \item \textbf{Deep Web (Admin/Advisor Panels):} Secure areas for management tasks, statistical analysis, and approval workflows.
+    \item \textbf{Surface Web (Public Portal):} Responsive UI for visitors to explore the club and apply for memberships/certificates.
+    \item \textbf{Notification System:} Email-based alerts for real-time status updates (Applied, Approved, Rejected).
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+    \item \textbf{Internet Dependency:} As a web-based SaaS, it requires constant internet connectivity.
+    \item \textbf{Single-Tenant Deployment:} The current version is optimized for a single organization (MBSTU Science Club), though architecture allows for future multi-tenancy.
+    \item \textbf{Hardware Integration:} No biometric or physical hardware integration (e.g., for attendance) is currently included.
+\end{itemize}
+
+\section{Report Organization}
+This report is structured to provide a comprehensive view of the development lifecycle:
+\begin{itemize}
+    \item \textbf{Chapter 1} introduces the project context and goals.
+    \item \textbf{Chapter 2} explores existing literature and justifies the technology stack.
+    \item \textbf{Chapter 3} details the requirement analysis and user roles.
+    \item \textbf{Chapter 4} describes the system architecture and database design.
+    \item \textbf{Chapter 5} covers the core implementation details.
+    \item \textbf{Chapter 6} presents user manual and testing results.
+    \item \textbf{Chapter 7} outlines the deployment strategy.
+    \item \textbf{Chapter 8} concludes with future roadmap items.
+\end{itemize}

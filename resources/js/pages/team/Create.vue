@@ -3,6 +3,7 @@ import Input from "@/components/Input.vue";
 import AppLayout from "@/layouts/AppLayout.vue";
 import { BreadcrumbItem } from "@/types";
 import { useForm } from "@inertiajs/vue3";
+import RichTextEditor from "@/components/RichTextEditor.vue";
 import Swal from "sweetalert2";
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -18,7 +19,7 @@ interface FormData {
   designation: string | null;
   membership_period: string | null;
   small_desc: string | null;
-  details: string | null;
+  details: string;
   facebook_link: string | null;
   linkedin_link: string | null;
   teammate_image: File | null; // Changed from profile_image
@@ -31,7 +32,7 @@ const form = useForm<FormData>({
   designation: null,
   membership_period: null,
   small_desc: null,
-  details: null,
+  details: "",
   facebook_link: null,
   linkedin_link: null,
   teammate_image: null, // Changed from profile_image
@@ -193,22 +194,19 @@ const handleSubmit = () => {
         </div>
 
         <div class="relative col-span-2">
-          <textarea
-            v-model="form.details"
-            placeholder="Teammate Career Details..."
-            class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-teal-600 placeholder-teal-400 bg-teal-50"
-            :class="
-              form.errors.details
-                ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                : 'border-teal-300 focus:ring-teal-500 focus:border-teal-400'
-            "
-          ></textarea>
-          <small
+            <RichTextEditor
+              v-model="form.details"
+              :error="form.errors.details"
+              label="Member Details"
+              placeholder="Write Member Details here..."
+            />
+
+            <small
             v-if="form.errors.details"
             class="text-red-500 font-medium text-sm mt-2 block"
             >{{ form.errors.details }}</small
           >
-        </div>
+          </div>
 
         <div class="relative bottom-0 col-span-2">
           <button

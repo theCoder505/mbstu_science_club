@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Advisor;
 use App\Models\Apply;
 use App\Models\Template;
+use App\Models\User;
 use App\Models\WebSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -25,23 +26,47 @@ class ApplicationController extends Controller
     }
 
 
-
-
     public function apply_certificate(Request $request)
     {
-        $vallidate = $request->validate([
+        $validated = $request->validate([
             'applicant_name' => ['required', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:applies'],
+            'email' => ['required', 'email', 'max:255'],
             'designation' => ['required', 'max:255'],
             'member_since' => ['required', 'max:255'],
             'member_till' => ['required', 'max:255'],
             'impact' => ['max:500'],
         ]);
 
-        $application = Apply::create($vallidate);
-        return redirect()->route('track_page')->with('success', 'Your application has been submitted successfully!')->with('applicant_mail', $request->email);
-    }
+        $validated['certificate_status'] = 'pending';
 
+        // Check if application already exists
+        $existingApplication = Apply::where('email', $validated['email'])->first();
+        $isUpdate = $existingApplication !== null;
+
+        // Use updateOrCreate
+        $application = Apply::updateOrCreate(
+            ['email' => $validated['email']],
+            $validated
+        );
+
+        $admin_email = User::find(1)->email;
+
+        // Send email to admin with context
+        Mail::send('emails.notify_new_apply_to_admin', [
+            'application' => $application,
+            'isUpdate' => $isUpdate,
+            'existingData' => $isUpdate ? $existingApplication : null
+        ], function ($message) use ($admin_email, $isUpdate) {
+            $message->to($admin_email)
+                ->subject($isUpdate
+                    ? 'Certificate Application Updated - MBSTUSC'
+                    : 'New Certificate Application - MBSTUSC');
+        });
+
+        return redirect()->route('track_page')
+            ->with('success', 'Your application has been ' . ($isUpdate ? 'updated' : 'submitted') . ' successfully!')
+            ->with('applicant_mail', $request->email);
+    }
 
 
 
@@ -250,6 +275,9 @@ class ApplicationController extends Controller
 
         $application = Apply::findOrFail($request->application_id);
 
+        // Store old status for comparison
+        $oldStatus = $application->certificate_status;
+
         // Update basic fields
         $application->note = $request->note;
         $application->certificate_text = $request->certificate_text;
@@ -306,14 +334,38 @@ class ApplicationController extends Controller
 
         $application->save();
 
-        if ($request->certificate_status == 'verified') {
+        // Send emails based on status changes
+        if ($request->certificate_status == 'verified' && $oldStatus != 'verified') {
             $advisor_uid = $request->certificate_issued_by;
             $advisor_email = Advisor::find($advisor_uid)->email;
             $club_role = Advisor::find($advisor_uid)->club_role;
 
             Mail::send('emails.advisor_on_verification', ['application_id' => $request->application_id, 'club_role' => $club_role], function ($message) use ($advisor_email) {
                 $message->to($advisor_email)
-                    ->subject('Certificate Approval Request From MBSTUSC');
+                    ->subject('Certificate Verification Required - MBSTUSC');
+            });
+        }
+
+        if (($request->certificate_status == 'revision' && $oldStatus != 'revision') ||
+            ($request->certificate_status == 'declined' && $oldStatus != 'declined')
+        ) {
+
+            $applier_email = $application->email;
+            $status = $request->certificate_status;
+            $note = $request->note;
+
+            Mail::send('emails.applicant_on_action', [
+                'application' => $application,
+                'status' => $status,
+                'note' => $note,
+                'oldStatus' => $oldStatus
+            ], function ($message) use ($applier_email, $status) {
+                $subject = $status == 'revision'
+                    ? 'Certificate Application Needs Revision - MBSTUSC'
+                    : 'Certificate Application Declined - MBSTUSC';
+
+                $message->to($applier_email)
+                    ->subject($subject);
             });
         }
 

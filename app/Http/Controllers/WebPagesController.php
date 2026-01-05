@@ -21,7 +21,7 @@ class WebPagesController extends Controller
     public function homePage()
     {
         $advisors = Advisor::orderBy('id', 'DESC')->get();
-        $team = Team::orderBy('id', 'DESC')->get();
+        $team = Team::orderBy('membership_period', 'DESC')->get();
         $committees = Committee::orderBy('committee_period', 'DESC')->get();
         $faqs = FAQ::orderBy('id', 'DESC')->get();
         $gallery = Gallery::where('status', 'show')->orderBy('position', 'ASC')->get();

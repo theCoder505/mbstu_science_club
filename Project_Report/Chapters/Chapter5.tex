@@ -1,0 +1,161 @@
+\section{Introduction}
+This chapter provides a deep dive into the actual code implementation of the system. We will examine the key Controllers, Middlewares, and Frontend logic that drive the application \cite{clean_code}.
+
+\section{Middleware Implementation}
+Middlewares act as the gatekeepers of the application.
+
+\subsection{Sharing Global Data (Inertia Middleware)}
+In `HandleInertiaRequests.php`, we define what data is available to every Vue component automatically.
+
+\begin{lstlisting}[language=PHP, caption=HandleInertiaRequests.php]
+class HandleInertiaRequests extends Middleware
+{
+    public function share(Request $request): array
+    {
+        // Fetch Global Settings
+        $settings = \App\Models\WebSetting::first();
+        
+        return [
+            ...parent::share($request),
+            // Global App Info
+            'name' => config('app.name'),
+            
+            // User Auth State
+            'auth' => [
+                'user' => $request->user(),
+                'advisor' => Auth::guard('advisor')->user(),
+            ],
+            
+            // Sidebar State (Persisted in Cookie)
+            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            
+            // Flash Messages for SweetAlert
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
+            
+            // Data from Settings Table (Footer Info)
+            'webSettings' => [
+                'contact_email' => $settings->contact_email ?? 'info@example.com',
+                'phone_number' => $settings->phone_number ?? '+8801xxx',
+                'facebook_link' => $settings->facebook_link ?? '#',
+                // ... other social links
+            ]
+        ];
+    }
+}
+\end{lstlisting}
+
+\subsection{Advisor Access Control}
+To ensure Advisors can't access Admin routes and vice-versa.
+
+\begin{lstlisting}[language=PHP, caption=AdvisorMiddleware.php]
+public function handle(Request $request, Closure $next): Response
+{
+    // Check if the user is logged in via 'advisor' guard
+    if (!Auth::guard('advisor')->check()) {
+        return redirect()
+            ->route('advisor_panel.login_page')
+            ->with('error', 'Please login to continue');
+    }
+
+    return $next($request);
+}
+\end{lstlisting}
+
+\section{Controller Logic}
+
+\subsection{Certificate Generation (ApplicationController)}
+This is the logic that processes the application verification.
+
+\begin{lstlisting}[language=PHP, caption=ApplicationController.php (Snippet)]
+public function validate_application(Request $request, $id) {
+    $application = Apply::findOrFail($id);
+    
+    // Check if member dates are valid
+    if(Carbon::parse($application->member_till)->isPast()) {
+        return back()->with('warning', 'Membership has expired.');
+    }
+    
+    $application->status = 'verified';
+    $application->verified_at = now();
+    $application->save();
+
+    // Trigger Email Notification to Advisor
+    $advisor = Advisor::where('department', $application->department)->first();
+    if($advisor) {
+        Mail::to($advisor->email)->send(new ReviewApplicationMail($application));
+    }
+
+    return redirect()->route('applications')->with('success', 'Verified & Sent to Advisor');
+}
+\end{lstlisting}
+
+\section{Frontend Implementation (Vue.js)}
+
+\subsection{OTP Input Component}
+A reusable component for the OTP verification.
+
+\begin{lstlisting}[language=JavaScript, caption=OtpInput.vue]
+<script setup>
+import { ref, watch } from 'vue';
+
+const props = defineProps(['modelValue']);
+const emit = defineEmits(['update:modelValue']);
+
+const digits = ref(['', '', '', '', '', '']);
+
+const handleInput = (index, event) => {
+    const val = event.target.value;
+    if (val && index < 5) {
+        // Auto-focus next input
+        document.getElementById(`otp-${index + 1}`).focus();
+    }
+    emitCode();
+};
+
+const emitCode = () => {
+    emit('update:modelValue', digits.value.join(''));
+};
+</script>
+
+<template>
+  <div class="flex gap-2">
+    <input v-for="(digit, i) in 6" 
+           :key="i"
+           :id="`otp-${i}`"
+           v-model="digits[i]"
+           maxlength="1"
+           class="w-12 h-12 text-center border rounded-lg focus:ring-2 ring-indigo-500"
+           @input="handleInput(i, $event)" />
+  </div>
+</template>
+\end{lstlisting}
+
+\section{Asset Compilation (Vite)}
+We utilize Vite for lightning-fast HMR (Hot Module Replacement) during development \cite{vite}.
+
+\begin{lstlisting}[language=JavaScript, caption=vite.config.ts]
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import vue from '@vitejs/plugin-vue';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: 'resources/js/app.ts',
+            ssr: 'resources/js/ssr.ts',
+            refresh: true,
+        }),
+        vue({
+            template: {
+                transformAssetUrls: {
+                    base: null,
+                    includeAbsolute: false,
+                },
+            },
+        }),
+    ],
+});
+\end{lstlisting}

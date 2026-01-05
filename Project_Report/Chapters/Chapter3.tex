@@ -1,0 +1,141 @@
+\section{Introduction}
+System analysis is the process of studying a procedure or business to identify its goal and purposes and create systems and procedures that will efficiently achieve them \cite{intro_se}. This chapter provides a detailed analysis of the requirements, structure, and functional flows of the Club Portfolio Management System (CPMS) \cite{agile_dev}.
+
+\section{Detailed Stakeholder Analysis}
+Understanding the user base is critical for UI/UX design.
+
+\subsection{The Administrator (Executive Committee)}
+\begin{itemize}
+    \item \textbf{Profile:} Typically a final-year student with moderate technical literacy.
+    \item \textbf{Goals:} To manage club affairs efficiently without spending hours on manual tasks.
+    \item \textbf{Pain Points:} 
+    \begin{itemize} 
+        \item Duplicate member records.
+        \item Lack of design skills for certificates.
+        \item Managing passwords for club social accounts.
+    \end{itemize}
+\end{itemize}
+
+\subsection{The Advisor (Faculty Member)}
+\begin{itemize}
+    \item \textbf{Profile:} University Professor, extremely busy schedule.
+    \item \textbf{Goals:} To oversee club activities and authorize official documents.
+    \item \textbf{Pain Points:}
+    \begin{itemize}
+        \item Physical paperwork signing piles up.
+        \item Constant email spam from students asking for approvals.
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Role} & \textbf{Key Responsibilities} \\ \hline
+Administrator & Website management, Member approval, Content updates, Template creation \\ \hline
+Advisor & Certificate verification, Strategic oversight, Bulk approvals \\ \hline
+General Member & Browsing events, Applying for certificates, Tracking application status \\ \hline
+\end{tabular}
+\caption{Stakeholder Roles and Responsibilities}
+\label{tab:roles}
+\end{table}
+
+\subsection{The General Member}
+\begin{itemize}
+    \item \textbf{Profile:} 1st to 4th-year students, mobile-first users.
+    \item \textbf{Goals:} To register for events, get certificates for CVs, and see event photos.
+\end{itemize}
+
+\section{Use Case Analysis}
+The interactions within the system are modeled below.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{images/use_case_diagram.png}
+    \caption{Comprehensive Use Case Diagram}
+    \label{fig:usecase_detailed}
+\end{figure}
+
+\subsection{Actor: Member}
+\begin{itemize}
+    \item \textbf{View Portfolio:} Browsing the "About Us", "Team", and "Gallery" pages.
+    \item \textbf{Apply for Certificate:} Accessing the \texttt{/application} route, filling out the dynamic form (Name, ID, Session, Membership duration), and submitting proof of participation.
+    \item \textbf{Track Status:} Using a unique application ID to check if the certificate is "Pending", "Verified", or "Approved".
+    \item \textbf{Download Certificate:} Once approved, downloading the high-resolution PDF/PNG.
+\end{itemize}
+
+\subsection{Actor: Administrator}
+\begin{itemize}
+    \item \textbf{Manage Team:} CRUD operations on the \texttt{teams} table. Adding new committee members with their roles and photos.
+    \item \textbf{Design Template:} Using the "Canvas Editor" to engage with the Fabric.js interface.
+    \item \textbf{Verify Application:} Checking the submitted data against internal records (e.g., event attendance sheets).
+    \item \textbf{System Configuration:} Updating global settings like "Current President Name" (used in digital signatures) or social media links.
+\end{itemize}
+
+\subsection{Actor: Advisor}
+\begin{itemize}
+    \item \textbf{One-Click Login:} Accessing the secure panel via a magic link sent to their official university email.
+    \item \textbf{Bulk Approval:} Viewing a list of pending certificates and approving them individually or in bulk.
+    \item \textbf{Profile Management:} Updating their digital signature scan and affiliation details.
+\end{itemize}
+
+\section{Detailed Functional Requirements}
+
+\subsection{Authentication Module}
+The system employs a dual-guard authentication strategy.
+\begin{itemize}
+    \item \textbf{User Guard:} Standard session-based auth for Admins. Hashed passwords using Bcrypt.
+    \item \textbf{Advisor Guard:} A separate session driver. This prevents session hijacking where an Admin could accidentally access Advisor privileges or vice-versa.
+    \item \textbf{OTP System:} A 6-digit Time-Based One-Time Password (TOTP) logic is implemented for the "Contact Us" form to prevent spam bots. The code is stored in the cache for 10 minutes.
+\end{itemize}
+
+\subsection{Certificate Engine Module}
+This is the heart of the application.
+\begin{itemize}
+    \item \textbf{Canvas Rendering:} The frontend uses HTML5 Canvas to render the template image.
+    \item \textbf{Element Binding:} Text elements (Name, Date, ID) are bound to specific \texttt{(x,y)} coordinates.
+    \item \textbf{Font Scaling:} If a name is too long (e.g., "Md. Abdullah Al Mamun Chowdhury"), the system automatically downscales the font size to fit the localized box.
+\end{itemize}
+
+\subsection{Notification Module}
+\begin{itemize}
+    \item \textbf{Event Triggers:}
+    \begin{itemize}
+        \item \texttt{ApplicationSubmitted}: Emails Admin.
+        \item \texttt{ApplicationVerified}: Emails Advisor.
+        \item \texttt{CertificateApproved}: Emails Student (with attachment).
+    \end{itemize}
+    \item \textbf{Queueing:} All emails are queued using Redis/Database to prevent request timeout during SMTP handshakes.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Module} & \textbf{Requirement} & \textbf{Priority} \\ \hline
+Authentication & Dual-Guard (Admin/Advisor) separation & High \\ \hline
+Certificate Engine & Canvas-based drag-and-drop designer & High \\ \hline
+Notifications & SMTP Email triggering on status change & Medium \\ \hline
+Public Portal & SEO-optimized dynamic pages & Medium \\ \hline
+\end{tabular}
+\caption{Functional Requirements Summary}
+\label{tab:functional_reqs}
+\end{table}
+
+\section{Non-Functional Requirements}
+Security and performance are paramount \cite{web_security}.
+\subsection{Scalability}
+The database is designed with indexing on frequently searched columns (\texttt{applicant\_email}, \texttt{track\_id}). While currently on SQLite, the use of Laravel's Eloquent ORM allows seamless migration to MySQL/PostgreSQL without code changes.
+
+\subsection{Security}
+\begin{itemize}
+    \item \textbf{CSRF Protection:} All \texttt{POST} requests are protected by Laravel's CSRF tokens.
+    \item \textbf{XSS Prevention:} Vue.js automatically escapes binding data, preventing script injection in the "Impact" text area \cite{owasp}.
+    \item \textbf{File Validation:} Only \texttt{jpg, png} mime types are allowed for uploads, preventing PHP shell uploads.
+\end{itemize}
+
+\subsection{Performance}
+\begin{itemize}
+    \item \textbf{Asset bundling:} Vite compiles assets into minified JS/CSS chunks.
+    \item \textbf{Lazy Loading:} Images in the gallery are lazy-loaded to reduce initial page weight.
+\end{itemize}

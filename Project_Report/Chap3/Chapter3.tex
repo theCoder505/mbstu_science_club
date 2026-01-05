@@ -1,0 +1,65 @@
+\chapter{System Analysis}
+\label{chap:system_analysis}
+
+\section{User Roles and Permissions}
+The system is designed for three distinct types of users, each with specific permissions and interfaces.
+
+\subsection{Administrator (Executive Committee)}
+The Admin has the highest level of control. Responsibilities include:
+\begin{enumerate}
+    \item \textbf{Content Management:} Updating "About Us", "Mission/Vision", "FAQs", and "Gallery" sections.
+    \item \textbf{Team Management:} Adding or removing Executive Committee members and regular members.
+    \item \textbf{Certificate Management:} designing templates, setting text positions, and initiating the certificate approval process.
+    \item \textbf{Settings:} Configuring website-wide settings like contact emails, social links, and current President signatures.
+\end{enumerate}
+
+\subsection{Advisor (Faculty)}
+Advisors are professors or faculty members. Their role is streamlined to respect their time:
+\begin{enumerate}
+    \item \textbf{Approval:} Reviewing certificate applications forwarded by the admin.
+    \item \textbf{Authentication:} Secure login via shared credentials to a simplified dashboard.
+    \item \textbf{Action:} A single-click approval mechanism that triggers the final email to the applicant.
+\end{enumerate}
+
+\subsection{Applicant/Visitor}
+General users or club members who interact with the public face of the website.
+\begin{enumerate}
+    \item \textbf{Application:} Applying for certificates by submitting details (Impact, Membership dates).
+    \item \textbf{Tracking:} Monitoring the status of their application (Pending, Verified, Approved, or Declined).
+    \item \textbf{Verification:} Verifying the authenticity of a certificate using the track ID.
+\end{enumerate}
+
+\section{Functional Requirements}
+
+\subsection{Certificate Ticketing System}
+This is the core feature. The workflow is as follows:
+\begin{itemize}
+    \item A member submits an application via the website.
+    \item Admin receives an email notification.
+    \item Admin logs in, verifies the claim, and selects an appropriate template.
+    \item Admin "Verifies" the application. This sends an email to the designated Advisor.
+    \item The Advisor receives the email, logs in, and "Approves" the certificate.
+    \item The system automatically generates the final image/PDF with all signatures and emails it to the applicant.
+\end{itemize}
+
+\subsection{Template Designer}
+The admin panel must include a canvas-based editor (utilizing Fabric.js or similar logic) where admins can:
+\begin{itemize}
+    \item Upload background images.
+    \item Add text placeholders (Name, Certificate Text, Date).
+    \item Drag and drop elements to position them correctly.
+    \item Save the layout as a persistent template for future use.
+\end{itemize}
+
+\subsection{Security Mechanisms}
+\begin{itemize}
+    \item \textbf{OTP Verification:} Critical actions like changing the admin email/password or sending contact emails require One-Time Password verification.
+    \item \textbf{Deep Web Dashboard:} The admin dashboard is secured and not indexed, providing a "Deep Web" layer of security.
+\end{itemize}
+
+\section{Non-Functional Requirements}
+\begin{itemize}
+    \item \textbf{Responsiveness:} The UI must adapt to mobile, tablet, and desktop screens.
+    \item \textbf{Performance:} Fast load times using Inertia.js and optimized assets.
+    \item \textbf{Data Integrity:} Reliable storage of member data and certificate records using SQLite (for this implementation).
+\end{itemize}

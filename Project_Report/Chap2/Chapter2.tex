@@ -1,0 +1,32 @@
+\chapter{Literature Review}
+\label{chap:literature_review}
+
+\section{Overview of Club Management Systems}
+University club management is a niche domain within educational resource planning. Traditionally, clubs use generic social media pages (Facebook, LinkedIn) to maintain their presence. While these platforms offer high engagement, they lack the structure required for official documentation, member database management, and automated graphical tasks like certificate generation.
+
+Existing dedicated solutions often come as part of larger, expensive University Management Systems (UMS), which are rigid and not customizable for valid specific branding needs of a student club. This project bridges the gap by offering a lightweight, specialized SaaS solution.
+
+\section{Review of Technologies}
+The selection of technology is critical for building a modern, responsive, and secure web application.
+
+\subsection{Laravel Framework}
+Laravel is a web application framework with expressive, elegant syntax. It is chosen for the backend due to its:
+\begin{itemize}
+    \item \textbf{MVC Architecture:} It follows the Model-View-Controller pattern, ensuring code organization.
+    \item \textbf{Eloquent ORM:} Simplifies database interactions with an object-oriented approach.
+    \item \textbf{Security:} Built-in protection against CSRF, SQL injection, and XSS.
+    \item \textbf{Mail Integration:} Facades for easy email sending, which is crucial for the advisor approval workflow in this project.
+\end{itemize}
+
+\subsection{Vue.js}
+Vue.js is a progressive JavaScript framework for building user interfaces. It is used here for:
+\begin{itemize}
+    \item \textbf{Reactivity:} Providing a smooth, app-like experience without page reloads.
+    \item \textbf{Component-Based Architecture:} Allowing reuse of UI elements like buttons, cards, and layouts.
+\end{itemize}
+
+\subsection{Inertia.js}
+Inertia.js serves as the glue between Laravel (backend) and Vue.js (frontend). It allows building single-page apps (SPAs) using classic server-side routing concepts, eliminating the complexity of managing client-side APIs for every interaction.
+
+\subsection{Tailwind CSS}
+For styling, Tailwind CSS v4 is used. Its utility-first approach enables rapid UI development with custom designs that deviate from the standard "Bootstrap look," fulfilling the requirement for a premium and unique aesthetic.

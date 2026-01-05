@@ -1,0 +1,64 @@
+\section{Introduction}
+A thorough review of existing solutions and technologies is essential to ensure the proposed system meets modern standards. This chapter analyzes the current state of club management software and justifies the selection of the LAMP/LEMP stack with modern frontend frameworks.
+
+\section{Existing Systems Analysis}
+\subsection{Manual/Paper-Based Systems}
+Most clubs currently rely on:
+\begin{itemize}
+    \item \textbf{Excel/Google Sheets:} For member lists. \textit{Pros:} Free, easy. \textit{Cons:} No privacy, hard to query, no backups.
+    \item \textbf{Canva/Photoshop:} For certificates. \textit{Pros:} High design quality. \textit{Cons:} Manual entry of names, no bulk generation, no verification QR/Link.
+\end{itemize}
+
+\subsection{University Management Systems (UMS)}
+Large ERPs (like Banner, PeopleSoft) sometimes have "Student Life" modules.
+\begin{itemize}
+    \item \textbf{Pros:} Integrated with student transcripts.
+    \item \textbf{Cons:} Extremely expensive, rigid, UI is often dated, and they do not allow "branding" specific to a club.
+\end{itemize}
+
+\subsection{SaaS Platforms (e.g., CampusLabs)}
+Global platforms exist but are often priced in USD, making them unaffordable for Bangladeshi public university clubs. They also lack local payment gateway integrations or local context customizations.
+
+\section{Technology Stack Justification}
+The chosen stack is a "Hybrid Monolith" using Laravel and Inertia.js.
+
+\subsection{Backend: Laravel Framework}
+Laravel (v12) is the industry-standard PHP framework \cite{laravel, pro_laravel}.
+\begin{itemize}
+    \item \textbf{Why Laravel?} It offers the best-in-class generic authentication (used here for Admins) and guard-based multi-auth (used here for Advisors).
+    \item \textbf{Mail Integration:} Its `Mail` facade supports SMTP/Sendmail drivers out of the box, essential for the approval workflow.
+    \item \textbf{Ecosystem:} Tools like `Artisan` make deployment and database migrations robust \cite{php_docs}.
+\end{itemize}
+
+\subsection{Frontend: Vue.js \& Inertia.js}
+\begin{itemize}
+    \item \textbf{Vue.js 3 (Composition API):} Allows for complex reactive components. For example, the "Certificate Designer" canvas requires real-time state management (dragging text x,y coordinates) which is trivial in Vue but hard in jQuery.
+    \item \textbf{Inertia.js:} Removes the need for a separate REST API \cite{rest_api}. We can return eloquent models directly from controllers to Vue pages (`Inertia::render()`), significantly speeding up development time (~50\% faster than building a separate API) \cite{inertia}.
+\end{itemize}
+
+\subsection{Styling: Tailwind CSS}
+\begin{itemize}
+    \item \textbf{Utility-First:} Allows building a unique "Dark Mode" aesthetic without fighting against a framework's default look (like Bootstrap \cite{bootstrap}).
+    \item \textbf{Responsiveness:} Native mobile-first utilities ensure the site works on student smartphones.
+\end{itemize}
+
+\subsection{Database: SQLite}
+\begin{itemize}
+    \item \textbf{Choice:} SQLite is chosen for the initial deployment.
+    \item \textbf{Reasoning:} The traffic for a single club (approx. 500-1000 hits/day) is well within SQLite's capabilities \cite{sqlite}. It simplifies backup (it's just a file) and requires zero configuration.
+\end{itemize}
+
+\section{Comparative Analysis}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Feature} & \textbf{Manual Process} & \textbf{Generic ERP} & \textbf{Proposed CPMS} \\ \hline
+Cost & Low & High & Low (Open Source) \\ \hline
+Custom Branding & High & Low & High \\ \hline
+Cert. Verification & None & Basic & Advanced (QR/Link) \\ \hline
+Advisor Workflow & Physical Signatures & Complex & One-Click Email \\ \hline
+\end{tabular}
+\caption{Comparison of Approaches}
+\label{tab:comparison}
+\end{table}
